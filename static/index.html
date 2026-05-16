@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FKG STUDIOS - Digital Assets</title>
+    <style>
+        :root { --bg-color: #0b0c10; --card-bg: #1f2833; --neon-blue: #45f3ff; --text-main: #c5c6c7; --badge-apk: #28a745; --badge-script: #fd7e14; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        header { text-align: center; padding: 50px 20px; border-bottom: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(69, 243, 255, 0.2); }
+        header h1 { color: #fff; font-size: 3rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px var(--neon-blue); }
+        header p { margin-top: 10px; font-size: 1.1rem; color: var(--neon-blue); }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        .card { background: var(--card-bg); border-radius: 10px; padding: 25px; border: 1px solid transparent; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { border: 1px solid var(--neon-blue); box-shadow: 0 0 20px rgba(69, 243, 255, 0.4); transform: translateY(-5px); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .card-title { color: #fff; font-size: 1.4rem; font-weight: bold; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: #fff; text-transform: uppercase;}
+        .badge.apk { background-color: var(--badge-apk); box-shadow: 0 0 10px rgba(40, 167, 69, 0.5); }
+        .badge.script { background-color: var(--badge-script); box-shadow: 0 0 10px rgba(253, 126, 20, 0.5); }
+        .card-desc { margin-bottom: 25px; font-size: 0.95rem; flex-grow: 1; color: #a0a0a0; }
+        .btn-download { display: block; text-align: center; text-decoration: none; padding: 12px 0; background: transparent; color: var(--neon-blue); border: 2px solid var(--neon-blue); border-radius: 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s ease; }
+        .btn-download:hover { background: var(--neon-blue); color: var(--bg-color); box-shadow: 0 0 15px var(--neon-blue); }
+        .empty-state { text-align: center; grid-column: 1 / -1; font-size: 1.2rem; margin-top: 50px; color: #777;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FKG STUDIOS</h1>
+        <p>Exclusive Digital Content, Scripts & Premium APKs</p>
+    </header>
+    <div class="container">
+        <div class="grid" id="assets-grid"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('assets-grid');
+            fetch('/api/assets')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        grid.innerHTML = `<div class="empty-state">No assets have been published yet. Please check back later!</div>`;
+                        return;
+                    }
+                    data.forEach(asset => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        const badgeClass = asset.type.toLowerCase() === 'apk' ? 'apk' : 'script';
+                        card.innerHTML = `
+                            <div>
+                                <div class="card-header">
+                                    <div class="card-title">${asset.title}</div>
+                                    <div class="badge ${badgeClass}">${asset.type}</div>
+                                </div>
+                                <div class="card-desc">${asset.description}</div>
+                            </div>
+                            <a href="${asset.download_url}" class="btn-download" download>Download Now</a>
+                        `;
+                        grid.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    grid.innerHTML = `<div class="empty-state">Error loading assets. Ensure backend is running.</div>`;
+                });
+        });
+    </script>
+</body>
+</html>
