@@ -37,10 +37,19 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('assets-grid');
-            fetch('/api/assets')
-                .then(response => response.json())
+            
+            // ورسیل پر پاتھ کو بالکل درست رکھنے کے لیے ہم ونڈو لوکیشن کا استعمال کر رہے ہیں
+            const API_URL = window.location.origin + '/api/assets';
+
+            fetch(API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.length === 0) {
+                    if (!data || data.length === 0) {
                         grid.innerHTML = `<div class="empty-state">No assets have been published yet. Please check back later!</div>`;
                         return;
                     }
@@ -62,6 +71,7 @@
                     });
                 })
                 .catch(err => {
+                    console.error('Fetch error:', err);
                     grid.innerHTML = `<div class="empty-state">Error loading assets. Ensure backend is running.</div>`;
                 });
         });
